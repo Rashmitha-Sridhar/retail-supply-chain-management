@@ -6,7 +6,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.pyc
 
 # Virtual environments
 venv/
@@ -23,8 +22,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -54,78 +51,56 @@ htmlcov/
 .ipynb_checkpoints/
 *.ipynb
 
-# Model / ML files
-*.pkl
-*.h5
-*.joblib
-*.csv
-*.json
+# ======================================
+# 🤖 AI MODULE (Datasets / Models)
+# ======================================
+
+ai_module/__pycache__/
+ai_module/dataset/
+ai_module/*.pkl
+ai_module/*.h5
+ai_module/*.joblib
+ai_module/*.csv
+ai_module/*.json
 
 # ======================================
-# 💻 FRONTEND (React / Node.js / Vite)
+# 💻 FRONTEND (React / Vite / Node.js)
 # ======================================
 
 # Dependencies
-node_modules/
+frontend/node_modules/
 bower_components/
 
 # Production build
-dist/
-build/
+frontend/dist/
+frontend/dist-ssr/
+frontend/build/
 
-# Caches and temp
-.cache/
-.vite/
+# Cache directories
+frontend/.cache/
+frontend/.vite/
 *.tsbuildinfo
 
 # Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
 
 # Local environment variables
 frontend/.env
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.production.local
+frontend/.env.*.local
 
-# Misc
-.DS_Store
-Thumbs.db
-
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
+# Editor / system junk
+frontend/.DS_Store
+frontend/Thumbs.db
 
 # ======================================
-# ⚙️ IDE / OS FILES
+# ⚙️ IDE / OS FILES (Global)
 # ======================================
 
-# VS Code / JetBrains
 .vscode/
+!.vscode/extensions.json
 .idea/
 *.suo
 *.ntvs*
@@ -133,26 +108,12 @@ dist-ssr
 *.sln
 *.sw?
 *.iml
-
-# Mac / Windows
 .DS_Store
 .DS_Store?
 ._*
 .Trashes
 ehthumbs.db
 Desktop.ini
-
-# ======================================
-# 🤖 AI MODULE / DATASETS
-# ======================================
-
-ai_module/dataset/
-ai_module/__pycache__/
-ai_module/*.pkl
-ai_module/*.csv
-ai_module/*.joblib
-ai_module/*.json
-ai_module/*.h5
 
 # ======================================
 # 🧾 DOCUMENTATION / REPORTS
@@ -181,10 +142,9 @@ render.yaml
 railway.json
 
 # ======================================
-# ✅ OTHERS
+# 🔁 OTHER TEMPORARY / BACKUP FILES
 # ======================================
 
-# Backup / temp
 *.tmp
 *.bak
 *.old

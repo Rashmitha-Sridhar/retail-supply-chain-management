@@ -1,23 +1,32 @@
-# backend/app.py
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
-from pymongo import MongoClient
 import os
+from routes.protected_routes import protected
+from config.db import init_db, mongo
+from routes.auth_routes import auth
 
-# Load environment variables
+# Load environment variables first
 load_dotenv()
 
+# Initialize Flask App
 app = Flask(__name__)
+
+# CORS
 CORS(app)
-app.config['JWT_SECRET_KEY'] = os.getenv("JWT_SECRET")
+
+# JWT
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET")
 jwt = JWTManager(app)
 
-# MongoDB connection
-mongo_uri = os.getenv("MONGO_URI")
-client = MongoClient(mongo_uri)
-db = client["retail_supply_chain"]
+# Initialize Database (IMPORTANT: must be AFTER app = Flask)
+init_db(app)
+
+print("Loaded MONGO_URI:", os.getenv("MONGO_URI"))
+print("CONFIG MONGO_URI:", app.config.get("MONGO_URI"))
+print("Mongo Object:", mongo)
+print("Mongo DB Object:", mongo.db)
 
 @app.route('/')
 def home():
@@ -25,8 +34,15 @@ def home():
 
 @app.route('/test_db')
 def test_db():
-    collections = db.list_collection_names()
-    return jsonify({"collections": collections}), 200
+    try:
+        collections = mongo.db.list_collection_names()
+        return jsonify({"collections": collections}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
+# Register Blueprint
+app.register_blueprint(auth, url_prefix="/auth")
+app.register_blueprint(protected, url_prefix="/api")
+
+if __name__ == "__main__":
     app.run(debug=True, port=int(os.getenv("PORT", 5000)))
