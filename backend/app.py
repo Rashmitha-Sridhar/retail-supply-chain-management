@@ -6,6 +6,7 @@ import os
 from routes.protected_routes import protected
 from config.db import init_db, mongo
 from routes.auth_routes import auth
+from routes.stats_routes import stats
 
 # Load environment variables first
 load_dotenv()
@@ -27,6 +28,8 @@ print("Loaded MONGO_URI:", os.getenv("MONGO_URI"))
 print("CONFIG MONGO_URI:", app.config.get("MONGO_URI"))
 print("Mongo Object:", mongo)
 print("Mongo DB Object:", mongo.db)
+
+app.register_blueprint(stats, url_prefix="/stats")
 
 @app.route('/')
 def home():
