@@ -9,8 +9,8 @@ from routes.auth_routes import auth
 from routes.stats_routes import stats
 from routes.suppliers_routes import suppliers
 from routes.warehouses_routes import warehouses
-# from routes.stores_routes import stores
-# from routes.orders_routes import orders
+from routes.stores_routes import stores
+from routes.orders_routes import orders
 
 # Load environment variables first
 load_dotenv()
@@ -51,8 +51,8 @@ app.register_blueprint(protected, url_prefix="/api")
 app.register_blueprint(stats, url_prefix="/stats")
 app.register_blueprint(suppliers, url_prefix="/suppliers")
 app.register_blueprint(warehouses, url_prefix="/warehouses")
-# app.register_blueprint(stores, url_prefix="/stores")
-# app.register_blueprint(orders, url_prefix="/orders")
+app.register_blueprint(stores, url_prefix="/stores")
+app.register_blueprint(orders, url_prefix="/orders")
 
 if __name__ == "__main__":
     app.run(debug=True, port=int(os.getenv("PORT", 5000)))
