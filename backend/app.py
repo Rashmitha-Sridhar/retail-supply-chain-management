@@ -28,10 +28,10 @@ jwt = JWTManager(app)
 # Initialize Database (IMPORTANT: must be AFTER app = Flask)
 init_db(app)
 
-print("Loaded MONGO_URI:", os.getenv("MONGO_URI"))
-print("CONFIG MONGO_URI:", app.config.get("MONGO_URI"))
-print("Mongo Object:", mongo)
-print("Mongo DB Object:", mongo.db)
+# print("Loaded MONGO_URI:", os.getenv("MONGO_URI"))
+# print("CONFIG MONGO_URI:", app.config.get("MONGO_URI"))
+# print("Mongo Object:", mongo)
+# print("Mongo DB Object:", mongo.db)
 
 @app.route('/')
 def home():
