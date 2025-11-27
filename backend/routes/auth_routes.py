@@ -4,28 +4,38 @@ from utils.hash import hash_password, verify_password
 from utils.token import generate_token
 from config.db import mongo
 import datetime
+from utils.validators import validate_register_payload, validate_login_payload
 
 auth = Blueprint('auth', __name__)
 
-# REGISTER (Admin only later)
+
+# ============================
+#   REGISTER USER
+# ============================
 @auth.route('/register', methods=['POST'])
 def register():
-    data = request.json or {}
+    data = request.get_json() or {}
 
-    name = data.get('name')
-    email = data.get('email')
-    password = data.get('password')
-    role = data.get('role')
+    # 1) VALIDATE INPUT
+    error_msg = validate_register_payload(data)
+    if error_msg:
+        return jsonify({"error": error_msg}), 400
 
-    if not (name and email and password and role):
-        return jsonify({"error": "All fields are required"}), 400
+    # 2) Extract cleaned data
+    name = data["name"].strip()
+    email = data["email"].strip().lower()
+    password = data["password"]
+    role = data["role"]
 
+    # 3) Check if email already exists
     existing = mongo.db.users.find_one({"email": email})
     if existing:
-        return jsonify({"error": "Email already exists"}), 400
+        return jsonify({"error": "An account with this email already exists."}), 400
 
+    # 4) Hash password
     password_hash = hash_password(password)
 
+    # 5) Create user object
     user = {
         "name": name,
         "email": email,
@@ -38,25 +48,34 @@ def register():
     return jsonify({"message": "User created successfully"}), 201
 
 
-# LOGIN
+
+# ============================
+#   LOGIN USER
+# ============================
 @auth.route('/login', methods=['POST'])
 def login():
-    data = request.json or {}
+    data = request.get_json() or {}
 
-    email = data.get('email')
-    password = data.get('password')
+    # 1) VALIDATE INPUT
+    error_msg = validate_login_payload(data)
+    if error_msg:
+        return jsonify({"error": error_msg}), 400
 
-    if not (email and password):
-        return jsonify({"error": "Email and password are required"}), 400
+    email = data["email"].strip().lower()
+    password = data["password"]
 
+    # 2) Check if user exists
     user = mongo.db.users.find_one({"email": email})
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        # Security best practice → never reveal whether email exists
+        return jsonify({"error": "Invalid email or password."}), 401
 
+    # 3) Check password
     if not verify_password(password, user['password_hash']):
-        return jsonify({"error": "Invalid password"}), 401
+        return jsonify({"error": "Invalid email or password."}), 401
 
-    token = generate_token(str(user['_id']))
+    # 4) Generate token
+    token = generate_token(identity=str(user['_id']))
 
     return jsonify({
         "message": "Login successful",

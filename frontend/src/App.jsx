@@ -1,12 +1,55 @@
-export default function App() {
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+
+// Auth pages
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+
+// Dashboard pages
+import Dashboard from "./pages/dashboard/Dashboard";
+
+// Layout + Protection
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import MainLayout from "./components/layout/MainLayout";
+
+const App = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-gray-800">
-      <h1 className="text-3xl font-bold mb-4 text-blue-600">
-        Retail Supply Chain System
-      </h1>
-      <p className="text-lg text-gray-600">
-        Frontend is running successfully with Tailwind CSS 🎉
-      </p>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+
+          {/* AUTH ROUTES */}
+          <Route path="/auth/login" element={<Login />} />
+          <Route path="/auth/register" element={<Register />} />
+
+          {/* PROTECTED ROUTES */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
+            {/* All dashboard pages live inside MainLayout */}
+            <Route path="dashboard" element={<Dashboard />} />
+
+            {/* we will add these later */}
+            {/* <Route path="suppliers" element={<Suppliers />} /> */}
+            {/* <Route path="warehouses" element={<Warehouses />} /> */}
+            {/* <Route path="stores" element={<Stores />} /> */}
+            {/* <Route path="orders" element={<Orders />} /> */}
+          </Route>
+
+          {/* DEFAULT REDIRECTS */}
+          {/* <Route path="/" element={<Navigate to="/dashboard" replace />} /> */}
+
+          {/* 404 fallback */}
+          <Route path="*" element={<Navigate to="/auth/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
-}
+};
+
+export default App;
