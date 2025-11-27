@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
-import registerImage from "../../assets/LoginRetailInventory.png"; // reuse or change image
+import registerImage from "../../assets/LoginRetailInventory.png";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -10,26 +10,97 @@ const Register = () => {
     name: "",
     email: "",
     password: "",
-    role: "store_manager",
+    role: "",
   });
 
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  // VALIDATION FUNCTIONS
+  const validateName = (name) => {
+    if (!name.trim()) return "Full name is required";
+    const parts = name.trim().split(" ");
+    if (parts.length < 2) return "Please enter first and last name";
+    if (parts.some((p) => p.length < 2)) return "Each name must be at least 2 letters";
+    if (!/^[A-Za-z ]+$/.test(name)) return "Name must contain only alphabets";
+    return "";
   };
 
+  const validateEmail = (email) => {
+    if (!email.trim()) return "Email is required";
+    const emailRegex = /^[\w.-]+@gmail\.com$/;
+    if (!emailRegex.test(email)) return "Only valid Gmail accounts allowed";
+    return "";
+  };
+
+  const validatePassword = (password) => {
+    if (!password) return "Password is required";
+    if (password.length < 8) return "Password must be at least 8 characters";
+    if (!/[A-Z]/.test(password)) return "Must contain at least 1 uppercase letter";
+    if (!/[a-z]/.test(password)) return "Must contain at least 1 lowercase letter";
+    if (!/[0-9]/.test(password)) return "Must contain at least 1 number";
+    if (/\s/.test(password)) return "Password cannot contain spaces";
+    return "";
+  };
+
+  const validateRole = (role) => {
+    if (!role) return "Please select a role";
+    return "";
+  };
+
+  // HANDLE INPUT CHANGE
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({ ...prev, [name]: value }));
+
+    // Live validation
+    let err = "";
+    if (name === "name") err = validateName(value);
+    if (name === "email") err = validateEmail(value);
+    if (name === "password") err = validatePassword(value);
+    if (name === "role") err = validateRole(value);
+
+    setErrors((prev) => ({ ...prev, [name]: err }));
+  };
+
+  // CHECK IF FORM IS VALID
+  const isFormValid = () => {
+    return (
+      !validateName(form.name) &&
+      !validateEmail(form.email) &&
+      !validatePassword(form.password) &&
+      !validateRole(form.role)
+    );
+  };
+
+  // SUBMIT FORM
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+
+    const nameError = validateName(form.name);
+    const emailError = validateEmail(form.email);
+    const pwdError = validatePassword(form.password);
+    const roleError = validateRole(form.role);
+
+    setErrors({
+      name: nameError,
+      email: emailError,
+      password: pwdError,
+      role: roleError,
+    });
+
+    if (nameError || emailError || pwdError || roleError) return;
 
     try {
+      setLoading(true);
       await api.post("/auth/register", form);
       navigate("/auth/login");
     } catch (err) {
-      setError(err.response?.data?.error || "Registration failed");
+      setErrors((prev) => ({
+        ...prev,
+        form: err.response?.data?.error || "Registration failed",
+      }));
     } finally {
       setLoading(false);
     }
@@ -37,6 +108,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-base-200">
+      
       {/* LEFT IMAGE */}
       <div className="hidden md:flex items-center justify-center bg-base-100 p-6">
         <img
@@ -49,6 +121,7 @@ const Register = () => {
       {/* RIGHT FORM */}
       <div className="flex items-center justify-center p-10">
         <div className="w-full max-w-md bg-base-100 p-8 rounded-lg shadow-md">
+
           <h1 className="text-3xl font-bold text-center mb-2">
             Create Account
           </h1>
@@ -57,13 +130,14 @@ const Register = () => {
             Register to access your Retail Supply Chain System
           </p>
 
-          {error && (
+          {errors.form && (
             <div className="alert alert-error py-2 text-sm mb-4 rounded-lg">
-              <span>{error}</span>
+              <span>{errors.form}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+
             {/* NAME */}
             <div className="form-control">
               <label className="label mb-1">
@@ -76,8 +150,8 @@ const Register = () => {
                 placeholder="Enter your full name"
                 value={form.name}
                 onChange={handleChange}
-                required
               />
+              {errors.name && <p className="text-error text-sm mt-1">{errors.name}</p>}
             </div>
 
             {/* EMAIL */}
@@ -89,11 +163,11 @@ const Register = () => {
                 type="email"
                 name="email"
                 className="input input-bordered input-md w-full px-4 mt-1"
-                placeholder="Enter your corporate email"
+                placeholder="Enter a valid email"
                 value={form.email}
                 onChange={handleChange}
-                required
               />
+              {errors.email && <p className="text-error text-sm mt-1">{errors.email}</p>}
             </div>
 
             {/* PASSWORD */}
@@ -108,8 +182,10 @@ const Register = () => {
                 placeholder="Create a strong password"
                 value={form.password}
                 onChange={handleChange}
-                required
               />
+              {errors.password && (
+                <p className="text-error text-sm mt-1">{errors.password}</p>
+              )}
             </div>
 
             {/* ROLE */}
@@ -117,22 +193,26 @@ const Register = () => {
               <label className="label mb-1">
                 <span className="label-text font-medium">Select Role</span>
               </label>
+
               <select
                 name="role"
                 className="select select-bordered w-full mt-1 px-4 py-2"
                 value={form.role}
                 onChange={handleChange}
               >
+                <option value="">Select a role</option>
                 <option value="admin">Admin</option>
                 <option value="warehouse_manager">Warehouse Manager</option>
                 <option value="store_manager">Store Manager</option>
               </select>
+
+              {errors.role && <p className="text-error text-sm mt-1">{errors.role}</p>}
             </div>
 
-            {/* REGISTER BUTTON */}
+            {/* BUTTON */}
             <button
               className="btn btn-primary w-full mt-2 transition-all duration-200 hover:scale-[1.02] hover:bg-primary-focus"
-              disabled={loading}
+              disabled={!isFormValid() || loading}
             >
               {loading ? (
                 <span className="loading loading-spinner loading-sm"></span>

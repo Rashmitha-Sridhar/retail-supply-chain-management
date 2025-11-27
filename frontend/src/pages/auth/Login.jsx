@@ -9,27 +9,74 @@ const Login = () => {
   const { login } = useAuth();
 
   const [form, setForm] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
+  // VALIDATION FUNCTIONS
+  const validateEmail = (email) => {
+    if (!email.trim()) return "Email is required";
+    const gmailRegex = /^[\w.-]+@gmail\.com$/;
+    if (!gmailRegex.test(email)) return "Enter a valid Gmail address";
+    return "";
+  };
+
+  const validatePassword = (password) => {
+    if (!password.trim()) return "Password is required";
+    return "";
+  };
+
+  // HANDLE INPUT CHANGE
   const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+
+    setForm((prev) => ({ ...prev, [name]: value }));
+
+    // Live validation
+    let err = "";
+    if (name === "email") err = validateEmail(value);
+    if (name === "password") err = validatePassword(value);
+
+    setErrors((prev) => ({ ...prev, [name]: err }));
+  };
+
+  // CHECK IF FORM IS VALID
+  const isFormValid = () => {
+    return (
+      !validateEmail(form.email) &&
+      !validatePassword(form.password)
+    );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setErrors({});
     setLoading(true);
+
+    // Final re-validation before sending to backend
+    const emailErr = validateEmail(form.email);
+    const passErr = validatePassword(form.password);
+
+    if (emailErr || passErr) {
+      setErrors({
+        email: emailErr,
+        password: passErr,
+      });
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await api.post("/auth/login", form);
       const { token, name, role } = res.data;
 
       login(token, { name, role });
-
       navigate("/dashboard");
+
     } catch (err) {
-      setError(err.response?.data?.error || "Invalid email or password");
+      setErrors((prev) => ({
+        ...prev,
+        submit: err.response?.data?.error || "Invalid email or password",
+      }));
     } finally {
       setLoading(false);
     }
@@ -37,22 +84,26 @@ const Login = () => {
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-base-200">
+      
       {/* LEFT FORM */}
       <div className="flex items-center justify-center p-10">
         <div className="w-full max-w-md">
+          
           <h1 className="text-3xl font-bold mb-6 text-center">Welcome Back</h1>
 
           <p className="text-center text-base-content/60 mb-6">
             Log in to access your Retail Supply Chain System
           </p>
 
-          {error && (
+          {/* Submit error */}
+          {errors.submit && (
             <div className="alert alert-error mb-4 py-2 text-sm rounded-lg">
-              <span>{error}</span>
+              <span>{errors.submit}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+
             {/* Email */}
             <div className="form-control">
               <label className="label mb-1">
@@ -62,11 +113,13 @@ const Login = () => {
                 type="email"
                 name="email"
                 className="input input-bordered input-md w-full px-4 mt-1"
-                placeholder="Enter your registered email"
+                placeholder="Enter your registered Gmail"
                 value={form.email}
                 onChange={handleChange}
-                required
               />
+              {errors.email && (
+                <p className="text-error text-sm mt-1">{errors.email}</p>
+              )}
             </div>
 
             {/* Password */}
@@ -78,11 +131,13 @@ const Login = () => {
                 type="password"
                 name="password"
                 className="input input-bordered input-md w-full px-4 mt-1"
-                placeholder="Enter your secure password"
+                placeholder="Enter your password"
                 value={form.password}
                 onChange={handleChange}
-                required
               />
+              {errors.password && (
+                <p className="text-error text-sm mt-1">{errors.password}</p>
+              )}
             </div>
 
             <div className="flex justify-between items-center text-sm mt-1">
@@ -98,7 +153,7 @@ const Login = () => {
             {/* Login button */}
             <button
               className="btn btn-primary w-full mt-2 transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90"
-              disabled={loading}
+              disabled={!isFormValid() || loading}
             >
               {loading ? (
                 <span className="loading loading-spinner loading-sm"></span>
@@ -106,21 +161,8 @@ const Login = () => {
                 "Login"
               )}
             </button>
-
-
-            {/* OPTIONAL: Google login disabled for now */}
-            {/*
-            <button className="btn btn-outline w-full mt-2 opacity-50 cursor-not-allowed">
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                className="w-5"
-              />
-              Sign in with Google (coming soon)
-            </button>
-            */}
           </form>
 
-          {/* Register */}
           <p className="text-center mt-6 text-sm">
             Don’t have an account?{" "}
             <Link to="/auth/register" className="text-primary font-medium">
@@ -138,6 +180,7 @@ const Login = () => {
           className="max-w-lg w-full"
         />
       </div>
+
     </div>
   );
 };
