@@ -1,71 +1,63 @@
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+
+import {
+  FiHome,
+  FiUsers,
+  FiTruck,
+  FiArchive,
+  FiBox,
+  FiLogOut,
+} from "react-icons/fi";
 
 const Sidebar = ({ onClose }) => {
-  const linkClass =
-    "flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-base-200 transition text-sm";
-  const activeClass = "bg-base-200 font-semibold";
+  const { logout } = useAuth();
+  const menuItems = [
+    { name: "Dashboard", path: "/dashboard", icon: <FiHome size={18} /> },
+    { name: "Suppliers", path: "/suppliers", icon: <FiUsers size={18} /> },
+    { name: "Warehouses", path: "/warehouses", icon: <FiArchive size={18} /> },
+    { name: "Stores", path: "/stores", icon: <FiBox size={18} /> },
+    { name: "Orders", path: "/orders", icon: <FiTruck size={18} /> },
+  ];
 
   return (
-    <aside className="w-64 h-full bg-base-100 border-r border-base-300 shadow-sm">
-      {/* Header */}
-      <div className="p-5 border-b border-base-300 flex items-center justify-between">
-        <h2 className="text-xl font-bold">Retail SCM</h2>
-
-        {/* Close button for mobile */}
-        {onClose && (
-          <button
-            className="btn btn-sm btn-circle md:hidden"
-            onClick={onClose}
-          >
-            ✕
-          </button>
-        )}
+    <div className="h-full w-64 bg-base-200 border-r border-base-300 flex flex-col shadow-lg">
+      
+      {/* Brand Header */}
+      <div className="p-5 text-2xl font-bold tracking-wide border-b border-base-300">
+        Retail SCM
       </div>
 
-      {/* Navigation */}
-      <nav className="p-3 space-y-1">
-        <NavLink
-          to="/dashboard"
-          className={({ isActive }) =>
-            `${linkClass} ${isActive ? activeClass : ""}`
-          }
-        >
-          📊 <span>Dashboard</span>
-        </NavLink>
-        <NavLink
-          to="/suppliers"
-          className={({ isActive }) =>
-            `${linkClass} ${isActive ? activeClass : ""}`
-          }
-        >
-          🏭 <span>Suppliers</span>
-        </NavLink>
-        <NavLink
-          to="/warehouses"
-          className={({ isActive }) =>
-            `${linkClass} ${isActive ? activeClass : ""}`
-          }
-        >
-          🏬 <span>Warehouses</span>
-        </NavLink>
-        <NavLink
-          to="/stores"
-          className={({ isActive }) =>
-            `${linkClass} ${isActive ? activeClass : ""}`
-          }
-        >
-          🛒 <span>Stores</span>
-        </NavLink>
-        <NavLink
-          to="/orders"
-          className={({ isActive }) =>
-            `${linkClass} ${isActive ? activeClass : ""}`
-          }
-        >
-          📦 <span>Orders</span>
-        </NavLink>
+      {/* Menu Section */}
+      <nav className="flex-1 p-3">
+        {menuItems.map((item) => (
+          <NavLink
+            to={item.path}
+            key={item.name}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all cursor-pointer
+              ${
+                isActive
+                  ? "bg-primary text-primary-content shadow-md"
+                  : "hover:bg-base-300"
+              }`
+            }
+            onClick={onClose}
+          >
+            {item.icon}
+            <span className="text-sm font-medium select-none">{item.name}</span>
+          </NavLink>
+        ))}
       </nav>
-    </aside>
+
+      {/* Logout */}
+      <div className="p-3 border-t border-base-300">
+        <button className="flex items-center gap-3 px-4 py-3 rounded-lg w-full hover:bg-base-300 transition-all">
+          <FiLogOut size={18} />
+          <span className="text-sm font-medium" onClick={logout}>Logout</span>
+        </button>
+      </div>
+    </div>
   );
 };
 

@@ -19,7 +19,13 @@ load_dotenv()
 app = Flask(__name__)
 
 # CORS
-CORS(app)
+CORS(app,
+     resources={r"/*": {"origins": "http://localhost:5173"}},
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+
+
 
 # JWT
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET")

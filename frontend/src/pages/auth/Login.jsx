@@ -152,7 +152,7 @@ const Login = () => {
 
             {/* Login button */}
             <button
-              className="btn btn-primary w-full mt-2 transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90"
+              className="btn btn-purple w-full mt-2 transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90"
               disabled={!isFormValid() || loading}
             >
               {loading ? (

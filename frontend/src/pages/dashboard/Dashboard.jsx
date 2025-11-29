@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
+import { FiTrendingUp, FiAlertTriangle, FiXCircle, FiTruck, FiHome } from "react-icons/fi";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -12,7 +13,6 @@ const Dashboard = () => {
 
   const [loading, setLoading] = useState(true);
 
-  // Fetch stats from backend
   useEffect(() => {
     const loadStats = async () => {
       try {
@@ -56,68 +56,98 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Page Heading */}
-      <h1 className="text-2xl font-bold">Dashboard Overview</h1>
+    <div className="space-y-8">
 
-      {/* STATS GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="stat bg-base-100 rounded-xl shadow">
-          <div className="stat-title">Total Inventory Items</div>
-          <div className="stat-value text-primary">{stats.inventoryCount}</div>
-        </div>
-
-        <div className="stat bg-base-100 rounded-xl shadow">
-          <div className="stat-title">Low Stock</div>
-          <div className="stat-value text-warning">{stats.lowStock}</div>
-        </div>
-
-        <div className="stat bg-base-100 rounded-xl shadow">
-          <div className="stat-title">Out of Stock</div>
-          <div className="stat-value text-error">{stats.outOfStock}</div>
-        </div>
-
-        <div className="stat bg-base-100 rounded-xl shadow">
-          <div className="stat-title">Suppliers</div>
-          <div className="stat-value">{stats.suppliers}</div>
-        </div>
-
-        <div className="stat bg-base-100 rounded-xl shadow">
-          <div className="stat-title">Warehouses</div>
-          <div className="stat-value">{stats.warehouses}</div>
-        </div>
+      {/* Heading */}
+      <div>
+        <h1 className="text-3xl font-bold mb-1">Dashboard Overview</h1>
+        <p className="text-base-content/60 text-sm">
+          A quick snapshot of your retail supply chain operations.
+        </p>
       </div>
 
-      {/* CHART & TABLE PLACEHOLDERS */}
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5">
+        <StatCard
+          title="Total Inventory Items"
+          value={stats.inventoryCount}
+          icon={<FiTrendingUp className="text-primary text-3xl" />}
+        />
+        <StatCard
+          title="Low Stock"
+          value={stats.lowStock}
+          icon={<FiAlertTriangle className="text-warning text-3xl" />}
+        />
+        <StatCard
+          title="Out of Stock"
+          value={stats.outOfStock}
+          icon={<FiXCircle className="text-error text-3xl" />}
+        />
+        <StatCard
+          title="Suppliers"
+          value={stats.suppliers}
+          icon={<FiTruck className="text-info text-3xl" />}
+        />
+        <StatCard
+          title="Warehouses"
+          value={stats.warehouses}
+          icon={<FiHome className="text-accent text-3xl" />}
+        />
+      </div>
+
+      {/* Content Grid (Charts + Activity) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        {/* CHART SECTION */}
-        <div className="bg-base-100 p-6 rounded-xl shadow">
-          <h2 className="text-lg font-semibold mb-3">Inventory Trend</h2>
-          <div className="h-64 flex items-center justify-center text-base-content/50">
-            {/* Replace with Recharts later */}
+
+        {/* Trend Chart Placeholder */}
+        <div className="bg-base-100 p-6 rounded-xl shadow-lg border border-base-300">
+          <h2 className="text-lg font-semibold mb-4">Inventory Trend</h2>
+          <div className="h-64 flex items-center justify-center text-base-content/40">
             Chart will appear here
           </div>
         </div>
 
-        {/* RECENT ORDERS / ACTIVITY */}
-        <div className="bg-base-100 p-6 rounded-xl shadow">
-          <h2 className="text-lg font-semibold mb-3">Recent Activity</h2>
-          <ul className="space-y-3">
-            <li className="p-3 bg-base-200 rounded-lg">
-              ✓ Warehouse updated new stock
-            </li>
-            <li className="p-3 bg-base-200 rounded-lg">
-              ✓ Store requested supplier restock
-            </li>
-            <li className="p-3 bg-base-200 rounded-lg">
-              ✓ New order processed
-            </li>
-          </ul>
+        {/* Recent Activity — Premium Look */}
+        <div className="bg-base-100 p-6 rounded-xl shadow-lg border border-base-300">
+          <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
+
+          <div className="space-y-4">
+
+            <ActivityItem text="Warehouse updated new stock" />
+            <ActivityItem text="Store requested supplier restock" />
+            <ActivityItem text="New order processed" />
+
+          </div>
         </div>
+
       </div>
     </div>
   );
 };
+
+
+// -------------------------------
+// COMPONENTS
+// -------------------------------
+
+// Stats Card Component
+const StatCard = ({ title, value, icon }) => (
+  <div className="bg-base-100 rounded-xl shadow-md p-5 border border-base-300 hover:shadow-xl transition-all duration-200">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-sm text-base-content/60">{title}</p>
+        <h3 className="text-3xl font-bold mt-1">{value}</h3>
+      </div>
+      <div>{icon}</div>
+    </div>
+  </div>
+);
+
+// Activity Item Component
+const ActivityItem = ({ text }) => (
+  <div className="flex items-center gap-3 p-3 bg-base-200/50 rounded-lg hover:bg-base-200 transition-all duration-200">
+    <span className="text-success text-xl">✓</span>
+    <p className="text-sm">{text}</p>
+  </div>
+);
 
 export default Dashboard;

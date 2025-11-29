@@ -5,11 +5,11 @@ from config.db import mongo
 
 suppliers = Blueprint("suppliers", __name__)
 
-# Helper function to convert MongoDB document -> JSON
+# Serialize MongoDB document
 def serialize_supplier(s):
     return {
         "id": str(s["_id"]),
-        "name": s["name"],
+        "name": s.get("name"),
         "contact_person": s.get("contact_person"),
         "email": s.get("email"),
         "phone": s.get("phone"),
@@ -17,10 +17,8 @@ def serialize_supplier(s):
         "created_at": s.get("created_at")
     }
 
-# -----------------------------
 # CREATE SUPPLIER
-# -----------------------------
-@suppliers.route("/add", methods=["POST"])
+@suppliers.route("/", methods=["POST"])
 @jwt_required()
 def add_supplier():
     data = request.json
@@ -34,16 +32,13 @@ def add_supplier():
         "contact_person": data.get("contact_person", ""),
         "email": data["email"],
         "phone": data["phone"],
-        "address": data.get("address", ""),
+        "address": data.get("address", "")
     }
 
     mongo.db.suppliers.insert_one(new_supplier)
     return jsonify({"message": "Supplier added successfully"}), 201
 
-
-# -----------------------------
 # GET ALL SUPPLIERS
-# -----------------------------
 @suppliers.route("/", methods=["GET"])
 @jwt_required()
 def get_suppliers():
@@ -51,47 +46,44 @@ def get_suppliers():
     suppliers_list = [serialize_supplier(s) for s in data]
     return jsonify(suppliers_list), 200
 
-
-# -----------------------------
 # GET SUPPLIER BY ID
-# -----------------------------
 @suppliers.route("/<id>", methods=["GET"])
 @jwt_required()
 def get_supplier(id):
-    supplier = mongo.db.suppliers.find_one({"_id": ObjectId(id)})
+    try:
+        supplier = mongo.db.suppliers.find_one({"_id": ObjectId(id)})
+    except:
+        return jsonify({"error": "Invalid ID"}), 400
+
     if not supplier:
         return jsonify({"error": "Supplier not found"}), 404
 
     return jsonify(serialize_supplier(supplier)), 200
 
-
-# -----------------------------
 # UPDATE SUPPLIER
-# -----------------------------
 @suppliers.route("/<id>", methods=["PUT"])
 @jwt_required()
 def update_supplier(id):
-    data = request.json
-    supplier = mongo.db.suppliers.find_one({"_id": ObjectId(id)})
+    try:
+        supplier = mongo.db.suppliers.find_one({"_id": ObjectId(id)})
+    except:
+        return jsonify({"error": "Invalid ID"}), 400
 
     if not supplier:
         return jsonify({"error": "Supplier not found"}), 404
 
-    mongo.db.suppliers.update_one(
-        {"_id": ObjectId(id)},
-        {"$set": data}
-    )
-
+    data = request.json
+    mongo.db.suppliers.update_one({"_id": ObjectId(id)}, {"$set": data})
     return jsonify({"message": "Supplier updated successfully"}), 200
 
-
-# -----------------------------
 # DELETE SUPPLIER
-# -----------------------------
 @suppliers.route("/<id>", methods=["DELETE"])
 @jwt_required()
 def delete_supplier(id):
-    supplier = mongo.db.suppliers.find_one({"_id": ObjectId(id)})
+    try:
+        supplier = mongo.db.suppliers.find_one({"_id": ObjectId(id)})
+    except:
+        return jsonify({"error": "Invalid ID"}), 400
 
     if not supplier:
         return jsonify({"error": "Supplier not found"}), 404
