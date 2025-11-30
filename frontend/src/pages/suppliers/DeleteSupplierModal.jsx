@@ -25,7 +25,7 @@ const DeleteSupplierModal = ({ supplier, onClose, reload }) => {
           <button className="btn" onClick={onClose}>
             Cancel
           </button>
-          <button className="btn btn-error text-white" onClick={handleDelete}>
+          <button className="btn btn-purple text-white" onClick={handleDelete}>
             Delete
           </button>
         </div>

@@ -24,7 +24,7 @@ const Topbar = ({ onMenuClick }) => {
       <div className="flex items-center gap-3">
         
         {/* Role Badge */}
-        <span className="badge badge-primary badge-outline hidden sm:block">
+        <span className="badge badge-primary badge-outline hidden sm:block text-l">
           {user?.role?.replace("_", " ").toUpperCase()}
         </span>
 

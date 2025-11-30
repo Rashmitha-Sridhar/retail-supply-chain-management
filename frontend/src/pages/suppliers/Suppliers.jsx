@@ -80,11 +80,11 @@ const Suppliers = () => {
           <table className="table w-full">
             <thead>
               <tr className="text-base">
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Address</th>
-                <th className="text-right">Actions</th>
+                <th className="whitespace-nowrap">Name</th>
+                <th className="whitespace-nowrap">Email</th>
+                <th className="whitespace-nowrap w-32">Phone</th>
+                <th className="max-w-xs">Address</th>
+                <th className="text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -92,8 +92,12 @@ const Suppliers = () => {
                 <tr key={supplier.id}>
                   <td>{supplier.name}</td>
                   <td>{supplier.email}</td>
-                  <td>{supplier.phone}</td>
-                  <td>{supplier.address || "—"}</td>
+                  <td className="whitespace-nowrap">
+                    {supplier.phone ? `+91 ${supplier.phone}` : "—"}
+                  </td>
+                  <td className="whitespace-nowrap">
+                    {supplier.address || "—"}
+                  </td>
                   <td>
                     <div className="flex justify-end gap-2">
                       <button

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from bson import ObjectId
 from config.db import mongo
+import re
 
 suppliers = Blueprint("suppliers", __name__)
 
@@ -23,20 +24,42 @@ def serialize_supplier(s):
 def add_supplier():
     data = request.json
 
+    # Required fields
     required = ["name", "email", "phone"]
-    if any(field not in data for field in required):
-        return jsonify({"error": "Missing required fields"}), 400
+    for field in required:
+        if field not in data or not data[field].strip():
+            return jsonify({"error": f"{field} is required"}), 400
 
-    new_supplier = {
+    # Name validation
+    if len(data["name"]) < 3:
+        return jsonify({"error": "Name must be at least 3 characters"}), 400
+    if not re.match(r"^[A-Za-z\s]+$", data["name"]):
+        return jsonify({"error": "Name must contain only letters"}), 400
+
+    # Email validation
+    if not re.match(r"^\S+@\S+\.\S+$", data["email"]):
+        return jsonify({"error": "Invalid email format"}), 400
+
+    # Phone validation
+    if not data["phone"].isdigit() or len(data["phone"]) != 10:
+        return jsonify({"error": "Phone must be 10 digits"}), 400
+
+    # Address validation
+    if len(data.get("address", "")) < 5:
+        return jsonify({"error": "Address must be meaningful"}), 400
+
+    # Insert
+    mongo.db.suppliers.insert_one({
         "name": data["name"],
         "contact_person": data.get("contact_person", ""),
         "email": data["email"],
         "phone": data["phone"],
         "address": data.get("address", "")
-    }
+    })
 
-    mongo.db.suppliers.insert_one(new_supplier)
     return jsonify({"message": "Supplier added successfully"}), 201
+
+
 
 # GET ALL SUPPLIERS
 @suppliers.route("/", methods=["GET"])

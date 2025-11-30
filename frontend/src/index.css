@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom purple primary button */
-/* Perfect match with sidebar purple highlight */
 .btn-purple {
   @apply bg-[#6366F1] text-white font-medium rounded-lg px-4 py-2 
          hover:bg-[#4F46E5] active:bg-[#4338CA] 
