@@ -66,8 +66,10 @@ const Suppliers = () => {
         />
       </div>
 
-      {/* TABLE SECTION */}
-      <div className="bg-base-100 p-6 rounded-xl shadow overflow-x-auto">
+      {/* TABLE + MOBILE CARD VIEW */}
+      {/* RESPONSIVE SECTION */}
+      {/* RESPONSIVE SECTION */}
+      <div className="bg-base-100 p-6 rounded-xl shadow">
         {loading ? (
           <div className="flex justify-center py-10">
             <span className="loading loading-spinner loading-lg"></span>
@@ -77,48 +79,89 @@ const Suppliers = () => {
             No suppliers found.
           </p>
         ) : (
-          <table className="table w-full">
-            <thead>
-              <tr className="text-base">
-                <th className="whitespace-nowrap">Name</th>
-                <th className="whitespace-nowrap">Email</th>
-                <th className="whitespace-nowrap w-32">Phone</th>
-                <th className="max-w-xs">Address</th>
-                <th className="text-right whitespace-nowrap">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSuppliers.map((supplier) => (
-                <tr key={supplier.id}>
-                  <td>{supplier.name}</td>
-                  <td>{supplier.email}</td>
-                  <td className="whitespace-nowrap">
-                    {supplier.phone ? `+91 ${supplier.phone}` : "—"}
-                  </td>
-                  <td className="whitespace-nowrap">
-                    {supplier.address || "—"}
-                  </td>
-                  <td>
-                    <div className="flex justify-end gap-2">
-                      <button
-                        className="btn btn-sm btn-outline"
-                        onClick={() => setEditSupplier(supplier)}
-                      >
-                        <FiEdit size={16} />
-                      </button>
+          <>
+            {/* MOBILE + TABLET: CARD VIEW (1 column mobile, 2 column tablet) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:hidden">
+              {filteredSuppliers.map((s) => (
+                <div
+                  key={s.id}
+                  className="card bg-base-100 p-4 border shadow-sm"
+                >
+                  <h3 className="font-bold text-lg mb-2">{s.name}</h3>
 
-                      <button
-                        className="btn btn-sm btn-error text-white"
-                        onClick={() => setDeleteSupplier(supplier)}
-                      >
-                        <FiTrash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                  <p className="text-sm">
+                    <b>Email:</b> {s.email}
+                  </p>
+                  <p className="text-sm">
+                    <b>Phone:</b> +91 {s.phone}
+                  </p>
+                  <p className="text-sm">
+                    <b>Address:</b> {s.address}
+                  </p>
+
+                  <div className="flex justify-end gap-3 mt-3">
+                    <button
+                      className="btn btn-xs btn-outline"
+                      onClick={() => setEditSupplier(s)}
+                    >
+                      <FiEdit size={14} />
+                    </button>
+
+                    <button
+                      className="btn btn-xs btn-error text-white"
+                      onClick={() => setDeleteSupplier(s)}
+                    >
+                      <FiTrash2 size={14} />
+                    </button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            {/* DESKTOP — FULL TABLE */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="table w-full">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th className="max-w-[250px]">Address</th>
+                    <th className="text-right">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredSuppliers.map((s) => (
+                    <tr key={s.id}>
+                      <td>{s.name}</td>
+                      <td>{s.email}</td>
+                      <td className="whitespace-nowrap">+91 {s.phone}</td>
+                      <td className="max-w-[250px] truncate">{s.address}</td>
+
+                      <td>
+                        <div className="flex justify-end gap-2">
+                          <button
+                            className="btn btn-sm btn-outline"
+                            onClick={() => setEditSupplier(s)}
+                          >
+                            <FiEdit size={16} />
+                          </button>
+
+                          <button
+                            className="btn btn-sm btn-error text-white"
+                            onClick={() => setDeleteSupplier(s)}
+                          >
+                            <FiTrash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

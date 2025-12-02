@@ -8,6 +8,7 @@ import Register from "./pages/auth/Register";
 // Dashboard pages
 import Dashboard from "./pages/dashboard/Dashboard";
 import Suppliers from "./pages/suppliers/Suppliers";
+import Warehouses from "./pages/warehouses/Warehouses";
 
 // Layout + Protection
 import ProtectedRoute from "./components/common/ProtectedRoute";
@@ -35,9 +36,9 @@ const App = () => {
             {/* All dashboard pages live inside MainLayout */}
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="suppliers" element={<Suppliers />} />
+            <Route path="warehouses" element={<Warehouses />} />
 
             {/* we will add these later */}
-            {/* <Route path="warehouses" element={<Warehouses />} /> */}
             {/* <Route path="stores" element={<Stores />} /> */}
             {/* <Route path="orders" element={<Orders />} /> */}
           </Route>
