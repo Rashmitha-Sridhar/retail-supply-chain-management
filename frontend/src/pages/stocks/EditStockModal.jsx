@@ -161,7 +161,6 @@ const EditStockModal = ({ onClose, reload, stock }) => {
               <option value="pcs">pcs</option>
               <option value="kg">kg</option>
               <option value="litre">litre</option>
-              <option value="trays">trays</option>
             </select>
           </div>
 

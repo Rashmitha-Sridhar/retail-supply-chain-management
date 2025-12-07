@@ -12,7 +12,6 @@ const Stocks = () => {
   const [openAdd, setOpenAdd] = useState(false);
   const [editStock, setEditStock] = useState(null);
   const [search, setSearch] = useState("");
-  
 
   // ✅ Load Warehouses
   const loadWarehouses = async () => {
@@ -50,46 +49,13 @@ const Stocks = () => {
   }, [selectedWarehouse]);
 
   // ✅ Search Filter
-  {
-    filteredProducts.map(([product, detail]) => (
-      <div
-        key={product}
-        className="p-4 border border-base-300 rounded-xl bg-base-100 shadow hover:shadow-lg transition"
-      >
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-lg flex items-center gap-2">
-            <FiBox size={18} />
-            {product}
-          </h3>
-
-          {/* ✅ EDIT BUTTON */}
-          <button
-            className="btn btn-xs btn-outline"
-            onClick={() =>
-              setEditStock({
-                warehouse_id: selectedWarehouse,
-                product_name: product,
-                qty: detail.qty,
-                unit: detail.unit,
-              })
-            }
-          >
-            Edit
-          </button>
-        </div>
-
-        <div className="mt-2 text-base-content/70">
-          <p>
-            <span className="font-semibold">Quantity: </span>
-            {detail.qty} {detail.unit}
-          </p>
-        </div>
-      </div>
-    ));
-  }
+  const filteredProducts = Object.entries(stock).filter(([product]) =>
+    product.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
+
       {/* ✅ HEADER */}
       <div className="flex justify-between items-center">
         <div>
