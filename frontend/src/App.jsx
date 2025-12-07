@@ -9,6 +9,9 @@ import Register from "./pages/auth/Register";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Suppliers from "./pages/suppliers/Suppliers";
 import Warehouses from "./pages/warehouses/Warehouses";
+import Stocks from "./pages/stocks/Stocks";
+import Stores from "./pages/stores/Stores";
+import Orders from "./pages/orders/Orders";
 
 // Layout + Protection
 import ProtectedRoute from "./components/common/ProtectedRoute";
@@ -37,10 +40,9 @@ const App = () => {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="suppliers" element={<Suppliers />} />
             <Route path="warehouses" element={<Warehouses />} />
-
-            {/* we will add these later */}
-            {/* <Route path="stores" element={<Stores />} /> */}
-            {/* <Route path="orders" element={<Orders />} /> */}
+            <Route path="stocks" element={<Stocks />} />
+            <Route path="stores" element={<Stores />} />
+            <Route path="orders" element={<Orders />} />
           </Route>
 
           {/* DEFAULT REDIRECTS */}

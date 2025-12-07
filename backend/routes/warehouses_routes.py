@@ -10,13 +10,9 @@ warehouses = Blueprint("warehouses", __name__)
 # Helper: Auto Generate Warehouse Code
 # ------------------------------------------
 def generate_next_code():
-    last_wh = (
-        mongo.db.warehouses
-        .find()
-        .sort("_id", -1)
-        .limit(1)
+    last_wh = list(
+        mongo.db.warehouses.find().sort("_id", -1).limit(1)
     )
-    last_wh = list(last_wh)
 
     if not last_wh:
         return "WH-001"
@@ -27,8 +23,7 @@ def generate_next_code():
     except:
         num = 0
 
-    next_code = f"WH-{num + 1:03d}"
-    return next_code
+    return f"WH-{num + 1:03d}"
 
 
 # ------------------------------------------
@@ -42,9 +37,9 @@ def serialize_wh(wh):
         "location": wh.get("location"),
         "address": wh.get("address"),
         "capacity": wh.get("capacity"),
-        "current_stock": wh.get("current_stock"),
+        "current_stock": wh.get("current_stock", {}),
         "manager_name": wh.get("manager_name"),
-        "contact_phone": wh.get("contact_phone")
+        "contact_phone": wh.get("contact_phone"),
     }
 
 
@@ -62,14 +57,12 @@ def validate_warehouse(data, is_update=False):
                 errors[field] = f"{field.replace('_', ' ').title()} is required"
 
     # Name
-    if "name" in data:
-        if len(data["name"].strip()) < 3:
-            errors["name"] = "Name must be at least 3 characters"
+    if "name" in data and len(data["name"].strip()) < 3:
+        errors["name"] = "Name must be at least 3 characters"
 
     # Location
-    if "location" in data:
-        if len(data["location"].strip()) < 3:
-            errors["location"] = "Location must be at least 3 characters"
+    if "location" in data and len(data["location"].strip()) < 3:
+        errors["location"] = "Location must be at least 3 characters"
 
     # Capacity
     if "capacity" in data:
@@ -79,15 +72,6 @@ def validate_warehouse(data, is_update=False):
                 errors["capacity"] = "Capacity must be greater than 0"
         except:
             errors["capacity"] = "Capacity must be a number"
-
-    # Current stock
-    if "current_stock" in data:
-        try:
-            stock = int(data["current_stock"])
-            if stock < 0:
-                errors["current_stock"] = "Current stock cannot be negative"
-        except:
-            errors["current_stock"] = "Current stock must be a number"
 
     # Manager name
     if "manager_name" in data:
@@ -103,12 +87,12 @@ def validate_warehouse(data, is_update=False):
 
 
 # ------------------------------------------
-# CREATE warehouse
+# CREATE Warehouse
 # ------------------------------------------
 @warehouses.route("/", methods=["POST"])
 @jwt_required()
 def add_warehouse():
-    data = request.json
+    data = request.json or {}
     errors = validate_warehouse(data)
 
     if errors:
@@ -122,25 +106,27 @@ def add_warehouse():
         "location": data["location"],
         "address": data.get("address", ""),
         "capacity": int(data["capacity"]),
-        "current_stock": 0,   # Always starts with 0
+        "current_stock": {},
         "manager_name": data["manager_name"],
-        "contact_phone": data["contact_phone"]
+        "contact_phone": data["contact_phone"],
     }
 
     mongo.db.warehouses.insert_one(new_wh)
 
-    return jsonify({"message": "Warehouse added", "warehouse_code": warehouse_code}), 201
+    return jsonify({
+        "message": "Warehouse added",
+        "warehouse_code": warehouse_code
+    }), 201
 
 
 # ------------------------------------------
-# GET all warehouses
+# GET warehouses
 # ------------------------------------------
 @warehouses.route("/", methods=["GET"])
 @jwt_required()
 def get_warehouses():
-    data = mongo.db.warehouses.find()
-    warehouses_list = [serialize_wh(w) for w in data]
-    return jsonify(warehouses_list), 200
+    wh_list = [serialize_wh(w) for w in mongo.db.warehouses.find()]
+    return jsonify(wh_list), 200
 
 
 # ------------------------------------------
@@ -157,24 +143,34 @@ def update_warehouse(id):
     if not wh:
         return jsonify({"error": "Warehouse not found"}), 404
 
-    data = request.json
+    data = request.json or {}
     errors = validate_warehouse(data, is_update=True)
 
     if errors:
         return jsonify({"errors": errors}), 400
 
+    # Capacity must not fall below total stock occupied
     if "capacity" in data:
         new_cap = int(data["capacity"])
-        if new_cap < wh["current_stock"]:
-            return jsonify({"error": "Capacity cannot be lower than current stock"}), 400
+        total_items = sum(wh.get("current_stock", {}).values())
 
-    mongo.db.warehouses.update_one({"_id": ObjectId(id)}, {"$set": data})
+        if new_cap < total_items:
+            return jsonify({
+                "error": "Capacity cannot be lower than current stock volume",
+                "current_stock_used": total_items,
+                "new_capacity": new_cap
+            }), 400
+
+    mongo.db.warehouses.update_one(
+        {"_id": ObjectId(id)},
+        {"$set": data}
+    )
 
     return jsonify({"message": "Warehouse updated"}), 200
 
 
 # ------------------------------------------
-# DELETE warehouse
+# DELETE Warehouse
 # ------------------------------------------
 @warehouses.route("/<id>", methods=["DELETE"])
 @jwt_required()
@@ -188,4 +184,5 @@ def delete_warehouse(id):
         return jsonify({"error": "Warehouse not found"}), 404
 
     mongo.db.warehouses.delete_one({"_id": ObjectId(id)})
+
     return jsonify({"message": "Warehouse deleted"}), 200

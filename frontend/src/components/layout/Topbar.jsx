@@ -1,8 +1,35 @@
-import { FiMenu, FiUser, FiSettings, FiLogOut } from "react-icons/fi";
+import { 
+  FiMenu, 
+  FiUser, 
+  FiSettings, 
+  FiLogOut, 
+  FiShield, 
+  FiPackage, 
+  FiShoppingBag 
+} from "react-icons/fi";
+
 import { useAuth } from "../../context/AuthContext";
 
 const Topbar = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
+
+  const getRoleIcon = () => {
+    switch (user?.role) {
+      case "admin":
+        return <FiShield size={14} className="text-primary" />;
+      case "warehouse_manager":
+        return <FiPackage size={14} className="text-primary" />;
+      case "store_manager":
+        return <FiShoppingBag size={14} className="text-primary" />;
+      default:
+        return null;
+    }
+  };
+
+  const formatRole = (role) => {
+    if (!role) return "";
+    return role.replace(/_/g, " ").toUpperCase();
+  };
 
   return (
     <div className="w-full bg-base-100 border-b border-base-300 px-4 py-3 flex items-center justify-between shadow-sm">
@@ -15,7 +42,7 @@ const Topbar = ({ onMenuClick }) => {
         <FiMenu size={20} />
       </button>
 
-      {/* CENTER: Page Title (Optional — can be dynamic later) */}
+      {/* CENTER: Page Title */}
       <h2 className="text-lg md:text-xl font-semibold tracking-wide">
         Dashboard
       </h2>
@@ -23,9 +50,10 @@ const Topbar = ({ onMenuClick }) => {
       {/* RIGHT: User Menu */}
       <div className="flex items-center gap-3">
         
-        {/* Role Badge */}
-        <span className="badge badge-primary badge-outline hidden sm:block text-l">
-          {user?.role?.replace("_", " ").toUpperCase()}
+        {/* ROLE BADGE WITH ICON */}
+        <span className="badge badge-primary badge-outline hidden sm:flex items-center gap-1 text-sm px-3 py-2">
+          {getRoleIcon()}
+          {formatRole(user?.role)}
         </span>
 
         {/* Avatar + Dropdown */}

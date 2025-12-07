@@ -15,9 +15,11 @@ const Warehouses = () => {
   const [editWarehouse, setEditWarehouse] = useState(null);
   const [deleteWarehouse, setDeleteWarehouse] = useState(null);
 
+  // ✅ SINGLE FILTER SOURCE
   const filteredWarehouses = warehouses.filter((w) =>
     w.name.toLowerCase().includes(search.toLowerCase())
   );
+
   // Load data
   const loadWarehouses = async () => {
     try {
@@ -34,10 +36,14 @@ const Warehouses = () => {
     loadWarehouses();
   }, []);
 
-  // Filter list
-  const filtered = warehouses.filter((w) =>
-    w.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // ✅ HELPER: TOTAL STOCK FROM OBJECT
+  const getTotalStock = (stockObj) => {
+    if (!stockObj || typeof stockObj !== "object") return 0;
+    return Object.values(stockObj).reduce(
+      (sum, item) => sum + (item.qty || 0),
+      0
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -70,8 +76,7 @@ const Warehouses = () => {
         />
       </div>
 
-      {/* TABLE */}
-      {/* RESPONSIVE SECTION */}
+      {/* TABLE / CARDS */}
       <div className="bg-base-100 p-6 rounded-xl shadow">
         {loading ? (
           <div className="flex justify-center py-10">
@@ -101,9 +106,28 @@ const Warehouses = () => {
                   <p className="text-sm">
                     <b>Capacity:</b> {w.capacity} units
                   </p>
-                  <p className="text-sm">
-                    <b>Current Stock:</b> {w.current_stock} units
-                  </p>
+
+                  {/* ✅ SAFE OBJECT RENDER */}
+                  <div className="text-sm mt-2">
+                    <b>Stock:</b>
+                    <div className="mt-1">
+                      {w.current_stock &&
+                      Object.keys(w.current_stock).length > 0 ? (
+                        Object.entries(w.current_stock).map(
+                          ([product, info]) => (
+                            <span
+                              key={product}
+                              className="inline-block bg-base-200 rounded px-2 py-1 mr-1 mb-1 text-xs"
+                            >
+                              {product}: {info.qty} {info.unit}
+                            </span>
+                          )
+                        )
+                      ) : (
+                        <span className="text-base-content/50">No stock</span>
+                      )}
+                    </div>
+                  </div>
 
                   <div className="flex justify-end gap-3 mt-3">
                     <button
@@ -145,7 +169,9 @@ const Warehouses = () => {
                       <td>{w.name}</td>
                       <td className="max-w-[200px] truncate">{w.location}</td>
                       <td>{w.capacity} units</td>
-                      <td>{w.current_stock} units</td>
+
+                      {/* ✅ TOTAL STOCK NUMBER */}
+                      <td>{getTotalStock(w.current_stock)} units</td>
 
                       <td>
                         <div className="flex justify-end gap-2">

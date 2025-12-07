@@ -9,6 +9,7 @@ from routes.auth_routes import auth
 from routes.stats_routes import stats
 from routes.suppliers_routes import suppliers
 from routes.warehouses_routes import warehouses
+from routes.stock_routes import stock
 from routes.stores_routes import stores
 from routes.orders_routes import orders
 
@@ -57,6 +58,7 @@ app.register_blueprint(protected, url_prefix="/api")
 app.register_blueprint(stats, url_prefix="/stats")
 app.register_blueprint(suppliers, url_prefix="/suppliers")
 app.register_blueprint(warehouses, url_prefix="/warehouses")
+app.register_blueprint(stock, url_prefix="/stock")
 app.register_blueprint(stores, url_prefix="/stores")
 app.register_blueprint(orders, url_prefix="/orders")
 

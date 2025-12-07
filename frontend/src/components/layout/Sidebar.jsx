@@ -7,6 +7,7 @@ import {
   FiTruck,
   FiArchive,
   FiBox,
+  FiLayers,
   FiLogOut,
 } from "react-icons/fi";
 
@@ -16,6 +17,7 @@ const Sidebar = ({ onClose }) => {
     { name: "Dashboard", path: "/dashboard", icon: <FiHome size={18} /> },
     { name: "Suppliers", path: "/suppliers", icon: <FiUsers size={18} /> },
     { name: "Warehouses", path: "/warehouses", icon: <FiArchive size={18} /> },
+    { name: "Stocks", path: "/stocks", icon: <FiLayers size={18} /> },
     { name: "Stores", path: "/stores", icon: <FiBox size={18} /> },
     { name: "Orders", path: "/orders", icon: <FiTruck size={18} /> },
   ];
@@ -50,13 +52,13 @@ const Sidebar = ({ onClose }) => {
         ))}
       </nav>
 
-      {/* Logout */}
+      {/* Logout
       <div className="p-3 border-t border-base-300">
         <button className="flex items-center gap-3 px-4 py-3 rounded-lg w-full hover:bg-base-300 transition-all">
           <FiLogOut size={18} />
           <span className="text-sm font-medium" onClick={logout}>Logout</span>
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
